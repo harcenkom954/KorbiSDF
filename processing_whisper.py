@@ -5,8 +5,6 @@ from transformers import WhisperProcessor
 
 
 class WhisperPrePostProcessor(WhisperProcessor):
-    def chunk_iter_with_batch(self, inputs, chunk_len, stride_left, stride_right, batch_size):
-        inputs_len = inputs.shape[0]
         step = chunk_len - stride_left - stride_right
 
         all_chunk_start_idx = np.arange(0, inputs_len, step)
@@ -40,7 +38,6 @@ class WhisperPrePostProcessor(WhisperProcessor):
     def preprocess_batch(self, inputs, chunk_length_s=0, stride_length_s=None, batch_size=None):
         stride = None
         if isinstance(inputs, dict):
-            stride = inputs.pop("stride", None)
             # Accepting `"array"` which is the key defined in `datasets` for
             # better integration
             if not ("sampling_rate" in inputs and ("raw" in inputs or "array" in inputs)):
@@ -117,7 +114,6 @@ class WhisperPrePostProcessor(WhisperProcessor):
                 inputs, sampling_rate=self.feature_extractor.sampling_rate, return_tensors="np"
             )
             if stride is not None:
-                processed["stride"] = stride
             yield processed
 
     def postprocess(self, model_outputs, return_timestamps=None, return_language=None):
